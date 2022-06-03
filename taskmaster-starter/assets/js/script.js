@@ -46,8 +46,6 @@ var saveTasks = function() {
 };
 
 
-
-
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
   // clear values
@@ -82,6 +80,79 @@ $("#task-form-modal .btn-primary").click(function() {
   }
 });
 
+// task text was clicked 
+$(".list-group").on("click", "p", function(){
+  // get current text of p elemnent
+  var text = $(this)
+  .text()
+  .trim();
+
+// replace p element with a new textarea
+var textInput = $("<textarea>").addClass("form-control").val(text);
+$(this).replaceWith(textInput);
+
+// auto focus new element 
+textInput.trigger("focus");
+});
+
+// editable field was un-focused
+$(".list-group").on("blur", "textarea", function(){
+  // get current value of textarea 
+var text = $(this).val();
+
+// get status type and position in the list 
+var status = $(this).closest(".list-group").attr("id").replace("list-", "");
+
+var index = $(this).closest(".list-group-item").index();
+
+// update task in array and re-save to localstorage
+tasks[status][index].text = text;
+saveTasks();
+
+// recreate p element
+var taskP = $("<p>").addClass("m-1").text(text);
+
+// replace textarea with new content 
+$(this).replaceWith(taskP);
+});
+
+
+// due date was clicked
+$(".list-group").on("click", "span", function() {
+  // get current text
+  var date = $(this)
+    .text()
+    .trim();
+
+    // create new input element
+    var dateInput = $("<input>").attr("type", "text").addClass("form-control").val(date);
+    $(this).replaceWith(dateInput);
+
+    // bring up calendar
+    dateInput.trigger("focus");
+});
+
+
+  // value of due date was changed
+$(".list-group").on("blur", "input[type='text']", function() {
+  // get current text
+  var date = $(this).val();
+
+  // get position in the list and other elements
+  var status = $(this).closest(".list-group").attr("id").replace("list-", "");
+
+  var index = $(this).closest(".list-group-item").index();
+
+  // update task in array and re-save to localstorage
+  tasks[status][index].date = date;
+  saveTasks();
+
+  // recreate span element with bootstrap classes  replace input with span element
+  var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(date);
+
+  $(this).replaceWith(taskSpan);
+});
+  
 // remove all tasks
 $("#remove-tasks").on("click", function() {
   for (var key in tasks) {
@@ -93,5 +164,3 @@ $("#remove-tasks").on("click", function() {
 
 // load tasks for the first time
 loadTasks();
-
-

@@ -45,7 +45,71 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+//enable dragglable and sortable 
+$(".card .list-group").sortable({
+  //dragging across list 
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "done",
+ 
+  activate: function(event, ui) {
+    console.log(ui);
+  },
+  deactivate: function(event, ui) {
+    console.log(ui);
+  },
+  over: function(event) {
+    console.log(event);
+  },
+  out: function(event) {
+    console.log(event);
+  },
+  update: function() {
+    // array to store data
+    var tempArr = [];
+    // loop over current set of children in sortable list 
+    $(this).children().each(function() {
+      tempArr.push({
+        text: $(this)
+          .find("p")
+          .text()
+          .trim(),
+      
+        date: $(this)
+          .find("span")
+          .text()
+          .trim()
+        });
+      }); 
+      
+      var arrName = $(this)
+      .attr("id")
+      .replace("list-", "");
 
+      tasks[arrName] = tempArr;
+      saveTasks();
+    },
+    stop: function(event) {
+      $(this).removeClass("dropover");
+    }
+  });
+          
+// trash icon
+$("#trask").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui){
+    //remove drag element
+    ui.droppable.remove();
+  },
+  over: function(event, ui) {
+    console.log(ui);
+  },
+  out: function(event, ui) {
+    console.log(ui);
+  }
+});
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
   // clear values
@@ -159,8 +223,13 @@ $("#remove-tasks").on("click", function() {
     tasks[key].length = 0;
     $("#list-" + key).empty();
   }
+  console.log(tasks);
   saveTasks();
 });
 
 // load tasks for the first time
 loadTasks();
+
+
+    
+  

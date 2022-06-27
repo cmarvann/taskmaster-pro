@@ -35,7 +35,6 @@ var loadTasks = function() {
 
   // loop over object properties
   $.each(tasks, function(list, arr) {
-    console.log(list, arr);
     // then loop over sub-array
     arr.forEach(function(task) {
       createTask(task.text, task.date, list);
@@ -49,12 +48,13 @@ var saveTasks = function() {
 
 var auditTask = function(taskEl) {
 // get date
-var date = $(taskEl).find("span").text().trim();
-console.log(date);
+var date = $(taskEl)
+.find("span")
+.text()
+.trim();
 
 // convert at a specific time
 var time = moment(date, "L").set("hour", 17);
-console.log(time);
 
 $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
 
@@ -75,16 +75,18 @@ $(".card .list-group").sortable({
   helper: "done",
  
   activate: function(event, ui) {
-    console.log(ui);
+    $(this).addClass("dropover");
+    $(".bottom-trash").addClass("bottom-trash-drag");
   },
   deactivate: function(event, ui) {
-    console.log(ui);
+    $(this).addClass("dropover");
+    $(".bottom-trash").removeClass("bottom-trash-drag");
   },
   over: function(event) {
-    console.log(event);
+    $(event.target).addClass("dropover-active");
   },
   out: function(event) {
-    console.log(event);
+    $(event.target).removeClass("dropover-active");
   },
   update: function() {
     // array to store data
@@ -111,9 +113,6 @@ $(".card .list-group").sortable({
 
       tasks[arrName] = tempArr;
       saveTasks();
-    },
-    stop: function(event) {
-      $(this).removeClass("dropover");
     }
   });
           
@@ -121,21 +120,24 @@ $(".card .list-group").sortable({
 $("#trask").droppable({
   accept: ".card .list-group-item",
   tolerance: "touch",
-  drop: function(event, ui){
+  drop: function(event, ui) {
     //remove drag element
     ui.droppable.remove();
+    $(".bottom-trash").removeClass("bottom-trash-active");
   },
   over: function(event, ui) {
     console.log(ui);
+    $(".bottom-trash").addClass("bottom-trash-active");
   },
   out: function(event, ui) {
-    console.log(ui);
+    $(".bottom-trash").removeClass("bottom-trash-active");
   }
 });
 
-$("#modalDueDate").datepicker({
+// convert text field into date picker jQuery
+$("#modalDueDate").datepicker( {
   // select future date add calendar
-  minDate: 1
+   minDate: 1
 });
 
 // modal was triggered
@@ -151,7 +153,7 @@ $("#task-form-modal").on("shown.bs.modal", function() {
 });
 
 // save button in modal was clicked
-$("#task-form-modal .btn-primary").click(function() {
+$("#task-form-modal .btn-save").click(function() {
   // get form values
   var taskText = $("#modalTaskDescription").val();
   var taskDate = $("#modalDueDate").val();
@@ -173,7 +175,8 @@ $("#task-form-modal .btn-primary").click(function() {
 });
 
 // task text was clicked 
-$(".list-group").on("click", "span", function(){
+$(".list-group").on("click", "p", function(){
+  
   // get current text of p elemnent
   var text = $(this)
   .text()
@@ -266,6 +269,11 @@ $("#remove-tasks").on("click", function() {
 // load tasks for the first time
 loadTasks();
 
-
+// audit task every 30 mins
+setInterval(function() {
+  $(".card .list-group-item").each(function() {
+    auditTask($(this));
+  });
+}, 1800000);
     
   
